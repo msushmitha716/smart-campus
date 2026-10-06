@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Campus - Student Portal</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        header p {
+            margin: 8px 0 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .locations {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .location-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .location-card h3 {
+            margin-top: 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        select,
+        button {
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 6px;
+        }
+
+        select {
+            border: 1px solid #ccc;
+            min-width: 220px;
+        }
+
+        button {
+            background: #1f2937;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #111827;
+        }
+
+        .form-row {
+            margin-bottom: 15px;
+        }
+
+        .form-row label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .navigation-button {
+            margin-top: 10px;
+        }
+
+        .percentage {
+            color: #555;
+        }
+
+        @media (max-width: 800px) {
+            .locations {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Smart Campus</h1>
+    <p>Student Portal</p>
+</header>
+
+<div class="container">
+
+    <div class="section">
+
+        <h2>Campus Crowd Status</h2>
+
+        <div id="locations" class="locations">
+            <div class="message">
+                Loading campus information...
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Report a Campus Issue</h2>
+
+        <form action="/report" method="post">
+
+            <div class="form-row">
+
+                <label for="location">
+                    Select Location
+                </label>
+
+                <select
+                    id="location"
+                    name="location"
+                    required>
+                </select>
+
+            </div>
+
+            <div class="form-row">
+
+                <label for="issue">
+                    Select Issue
+                </label>
+
+                <select
+                    id="issue"
+                    name="issue"
+                    required>
+
+                    <option value="">
+                        Select an issue
+                    </option>
+
+                    <option value="Crowded Area">
+                        Crowded Area
+                    </option>
+
+                    <option value="Blocked Pathway">
+                        Blocked Pathway
+                    </option>
+
+                </select>
+
+            </div>
+
+            <button type="submit">
+                Submit Report
+            </button>
+
+        </form>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Navigation</h2>
+
+        <p>
+            Find less congested areas and recommended campus locations.
+        </p>
+
+        <button
+            class="navigation-button"
+            onclick="window.location.href='/navigation.html'">
+
+            Open Navigation
+
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+async function loadLocations() {
+
+    try {
+
+        const response =
+            await fetch("/api/locations");
+
+        const locations =
+            await response.json();
+
+        displayLocations(locations);
+
+        populateLocationDropdown(locations);
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("locations").innerHTML =
+            "<div class='message'>Unable to load campus information.</div>";
+    }
+}
+
+
+function displayLocations(locations) {
+
+    const container =
+        document.getElementById("locations");
+
+    container.innerHTML = "";
+
+    if (locations.length === 0) {
+
+        container.innerHTML =
+            "<div class='message'>No campus locations available.</div>";
+
+        return;
+    }
+
+    const totalCampusVotes =
+        locations.reduce(
+            (total, location) =>
+                total + location.totalVotes,
+            0
+        );
+
+    locations.forEach(location => {
+
+        let statusClass = "low";
+
+        if (location.crowdStatus === "Medium Crowd") {
+            statusClass = "moderate";
+        }
+
+        if (location.crowdStatus === "High Crowd") {
+            statusClass = "high";
+        }
+
+        let crowdedPercentage = 0;
+
+        if (totalCampusVotes > 0) {
+
+            crowdedPercentage =
+                (location.crowdedVotes * 100) /
+                totalCampusVotes;
+        }
+
+        let blockedPercentage = 0;
+
+        if (totalCampusVotes > 0) {
+
+            blockedPercentage =
+                (location.blockedVotes * 100) /
+                totalCampusVotes;
+        }
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "location-card";
+
+        card.innerHTML = `
+
+            <h3>${location.name}</h3>
+
+            <div class="status ${statusClass}">
+                ${location.crowdStatus}
+            </div>
+
+            <p>
+                <strong>Total Votes:</strong>
+                ${location.totalVotes}
+            </p>
+
+            <p>
+                <strong>Crowded Area:</strong>
+                ${location.crowdedVotes}
+                <span class="percentage">
+                    (${crowdedPercentage.toFixed(1)}%)
+                </span>
+            </p>
+
+            <p>
+                <strong>Blocked Pathway:</strong>
+                ${location.blockedVotes}
+                <span class="percentage">
+                    (${blockedPercentage.toFixed(1)}%)
+                </span>
+            </p>
+
+            <p>
+                <strong>Pathway:</strong>
+                ${
+                    location.blocked
+                    ? "Blocked"
+                    : "Clear"
+                }
+            </p>
+
+        `;
+
+        container.appendChild(card);
+
+    });
+}
+
+
+function populateLocationDropdown(locations) {
+
+    const dropdown =
+        document.getElementById("location");
+
+    dropdown.innerHTML = "";
+
+    const defaultOption =
+        document.createElement("option");
+
+    defaultOption.value = "";
+
+    defaultOption.textContent =
+        "Select a location";
+
+    defaultOption.disabled = true;
+
+    defaultOption.selected = true;
+
+    dropdown.appendChild(defaultOption);
+
+    locations.forEach(location => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            location.name;
+
+        option.textContent =
+            location.name;
+
+        dropdown.appendChild(option);
+
+    });
+}
+
+
+loadLocations();
+
+</script>
+
+</body>
+</html>

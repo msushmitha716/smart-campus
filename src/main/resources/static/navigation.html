@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Campus - Navigation</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 30px auto;
+        }
+
+        .section {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            margin-top: 0;
+        }
+
+        .location-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .location-card {
+            border: 1px solid #ddd;
+            padding: 18px;
+            border-radius: 8px;
+        }
+
+        .location-card h3 {
+            margin-top: 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .low {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .blocked {
+            color: #b91c1c;
+            font-weight: bold;
+        }
+
+        .clear {
+            color: #047857;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 20px;
+            background: #1f2937;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        button:hover {
+            background: #111827;
+        }
+
+        .message {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 800px) {
+            .location-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>Smart Campus</h1>
+
+    <p>Campus Navigation</p>
+
+</header>
+
+<div class="container">
+
+    <div class="section">
+
+        <h2>Recommended Route</h2>
+
+        <div id="recommended">
+            <div class="message">
+                Loading recommendations...
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Less Congested Locations</h2>
+
+        <div id="lessCongested" class="location-list">
+            <div class="message">
+                Loading locations...
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>High Congestion Locations</h2>
+
+        <div id="highCongestion" class="location-list">
+            <div class="message">
+                Loading locations...
+            </div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <button onclick="window.location.href='/'">
+            Back to Student Portal
+        </button>
+
+    </div>
+
+</div>
+
+<script>
+
+async function loadNavigation() {
+
+    try {
+
+        const response =
+            await fetch("/api/locations");
+
+        const locations =
+            await response.json();
+
+        displayNavigation(locations);
+
+    } catch (error) {
+
+        console.error(error);
+
+        document.getElementById("recommended").innerHTML =
+            "<div class='message'>Unable to load navigation information.</div>";
+    }
+}
+
+
+function getStatusClass(status) {
+
+    if (status === "Medium Crowd") {
+        return "moderate";
+    }
+
+    if (status === "High Crowd") {
+        return "high";
+    }
+
+    return "low";
+}
+
+
+function createLocationCard(location) {
+
+    const card =
+        document.createElement("div");
+
+    card.className =
+        "location-card";
+
+    const pathway =
+        location.blocked
+        ? "<span class='blocked'>Blocked Pathway</span>"
+        : "<span class='clear'>Pathway Clear</span>";
+
+    card.innerHTML = `
+
+        <h3>${location.name}</h3>
+
+        <div class="status ${getStatusClass(location.crowdStatus)}">
+            ${location.crowdStatus}
+        </div>
+
+        <p>
+            Total Votes:
+            <strong>${location.totalVotes}</strong>
+        </p>
+
+        <p>
+            ${pathway}
+        </p>
+
+    `;
+
+    return card;
+}
+
+
+function displayNavigation(locations) {
+
+    const order = {
+
+        "Low Crowd": 1,
+
+        "Medium Crowd": 2,
+
+        "High Crowd": 3
+    };
+
+
+    const availableLocations =
+        locations
+            .filter(location => !location.blocked)
+            .sort(
+                (a, b) =>
+                    order[a.crowdStatus] -
+                    order[b.crowdStatus]
+            );
+
+
+    const recommended =
+        document.getElementById("recommended");
+
+    recommended.innerHTML = "";
+
+
+    if (availableLocations.length === 0) {
+
+        recommended.innerHTML =
+            "<div class='message'>No clear locations available.</div>";
+
+    } else {
+
+        const heading =
+            document.createElement("p");
+
+        heading.innerHTML =
+            "<strong>Recommended locations in order:</strong>";
+
+        recommended.appendChild(heading);
+
+        const list =
+            document.createElement("ol");
+
+        availableLocations
+            .slice(0, 3)
+            .forEach(location => {
+
+                const item =
+                    document.createElement("li");
+
+                item.textContent =
+                    location.name
+                    + " - "
+                    + location.crowdStatus;
+
+                list.appendChild(item);
+
+            });
+
+        recommended.appendChild(list);
+    }
+
+
+    const lessCongested =
+        document.getElementById("lessCongested");
+
+    lessCongested.innerHTML = "";
+
+
+    const lessCongestedLocations =
+        locations.filter(
+            location =>
+                !location.blocked
+                &&
+                (
+                    location.crowdStatus === "Low Crowd"
+                    ||
+                    location.crowdStatus === "Medium Crowd"
+                )
+        );
+
+
+    if (lessCongestedLocations.length === 0) {
+
+        lessCongested.innerHTML =
+            "<div class='message'>No less congested locations available.</div>";
+
+    } else {
+
+        lessCongestedLocations
+            .sort(
+                (a, b) =>
+                    order[a.crowdStatus] -
+                    order[b.crowdStatus]
+            )
+            .forEach(location => {
+
+                lessCongested.appendChild(
+                    createLocationCard(location)
+                );
+
+            });
+    }
+
+
+    const highCongestion =
+        document.getElementById("highCongestion");
+
+    highCongestion.innerHTML = "";
+
+
+    const highCongestionLocations =
+        locations.filter(
+            location =>
+                location.blocked
+                ||
+                location.crowdStatus === "High Crowd"
+        );
+
+
+    if (highCongestionLocations.length === 0) {
+
+        highCongestion.innerHTML =
+            "<div class='message'>No high congestion locations.</div>";
+
+    } else {
+
+        highCongestionLocations.forEach(location => {
+
+            highCongestion.appendChild(
+                createLocationCard(location)
+            );
+
+        });
+    }
+}
+
+
+loadNavigation();
+
+</script>
+
+</body>
+</html>
