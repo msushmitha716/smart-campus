@@ -21,20 +21,26 @@ pipeline {
             }
         }
 
-        stage('Package') {
+        stage('Docker Check') {
             steps {
-                bat 'mvn package -DskipTests'
+                bat 'docker version'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                bat 'docker build -t smart-campus:1.0 .'
             }
         }
     }
 
     post {
         success {
-            echo 'Smart Campus CI pipeline completed successfully.'
+            echo 'Smart Campus CI/CD pipeline completed successfully.'
         }
 
         failure {
-            echo 'Smart Campus CI pipeline failed.'
+            echo 'Smart Campus CI/CD pipeline failed.'
         }
     }
 }
