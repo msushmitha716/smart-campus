@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus - Create account</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:#fff;color:#0f172a}
+.hero{background:linear-gradient(135deg,#4f46e5,#7c3aed 55%,#06b6d4);color:#fff;padding:70px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero::before{width:380px;height:380px;top:-120px;right:-120px}
+.hero::after{width:260px;height:260px;bottom:-80px;left:-60px}
+.hero h1{font-size:42px;margin-bottom:14px;position:relative}
+.hero p{font-size:17px;line-height:1.7;max-width:440px;opacity:.93;position:relative}
+.hero ul{list-style:none;margin-top:32px;position:relative}
+.hero li{margin:14px 0;font-size:16px;background:rgba(255,255,255,.12);padding:12px 16px;border-radius:12px;max-width:420px}
+.panel{display:flex;align-items:center;justify-content:center;padding:30px}
+.box{width:100%;max-width:390px}
+.box h2{font-size:30px;margin-bottom:6px}
+.sub{color:#64748b;margin-bottom:22px}
+label{display:block;font-size:13px;font-weight:600;margin:16px 0 7px;color:#334155}
+input{width:100%;padding:13px 15px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;transition:.2s}
+input:focus{border-color:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+.btn{width:100%;margin-top:26px;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(79,70,229,.35)}
+.alert{padding:12px 15px;border-radius:12px;font-size:14px;margin-bottom:6px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.switch{text-align:center;margin-top:26px;font-size:14px;color:#64748b}
+.switch a{color:#4f46e5;font-weight:600;text-decoration:none}
+@media(max-width:850px){body{grid-template-columns:1fr}.hero{display:none}}
+</style>
+</head>
+<body>
+<div class="hero">
+    <h1>🎓 Smart Campus</h1>
+    <p>Join your campus community. Create your student account in a few seconds and start using live crowd and mobility updates.</p>
+    <ul>
+        <li>✅ Use your @campus.com email</li>
+        <li>🔒 Your password is stored securely (hashed)</li>
+    </ul>
+</div>
+<div class="panel">
+    <div class="box">
+        <h2>Create student account</h2>
+        <p class="sub">Register with your campus email</p>
+
+        <div class="alert" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/register}" method="post">
+            <label>Campus email</label>
+            <input type="email" name="email" th:value="${email}" placeholder="yourname@campus.com" required>
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Create a password" required>
+            <label>Confirm password</label>
+            <input type="password" name="confirmPassword" placeholder="Re-enter password" required>
+            <button class="btn" type="submit">Create account</button>
+        </form>
+
+        <div class="switch">Already registered? <a th:href="@{/login}">Sign in</a></div>
+    </div>
+</div>
+</body>
+</html>

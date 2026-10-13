@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus - Sign in</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:#fff;color:#0f172a}
+.hero{background:linear-gradient(135deg,#4f46e5,#7c3aed 55%,#06b6d4);color:#fff;padding:70px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+.hero::before{width:380px;height:380px;top:-120px;right:-120px}
+.hero::after{width:260px;height:260px;bottom:-80px;left:-60px}
+.hero h1{font-size:42px;margin-bottom:14px;position:relative}
+.hero p{font-size:17px;line-height:1.7;max-width:440px;opacity:.93;position:relative}
+.hero ul{list-style:none;margin-top:32px;position:relative}
+.hero li{margin:14px 0;font-size:16px;background:rgba(255,255,255,.12);padding:12px 16px;border-radius:12px;max-width:420px}
+.panel{display:flex;align-items:center;justify-content:center;padding:30px}
+.box{width:100%;max-width:390px}
+.box h2{font-size:30px;margin-bottom:6px}
+.sub{color:#64748b;margin-bottom:26px}
+.toggle{display:flex;background:#f1f5f9;border-radius:12px;padding:5px;margin-bottom:22px}
+.toggle button{flex:1;border:0;background:transparent;padding:11px;border-radius:9px;font-weight:600;font-size:14px;color:#64748b;cursor:pointer}
+.toggle button.active{background:#fff;color:#4f46e5;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+label{display:block;font-size:13px;font-weight:600;margin:16px 0 7px;color:#334155}
+input{width:100%;padding:13px 15px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;transition:.2s}
+input:focus{border-color:#4f46e5;box-shadow:0 0 0 4px rgba(79,70,229,.12)}
+.btn{width:100%;margin-top:26px;padding:14px;border:0;border-radius:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(79,70,229,.35)}
+.alert{padding:12px 15px;border-radius:12px;font-size:14px;margin-bottom:6px}
+.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.switch{text-align:center;margin-top:26px;font-size:14px;color:#64748b}
+.switch a{color:#4f46e5;font-weight:600;text-decoration:none}
+@media(max-width:850px){body{grid-template-columns:1fr}.hero{display:none}}
+</style>
+</head>
+<body>
+<div class="hero">
+    <h1>🎓 Smart Campus</h1>
+    <p>Mobility &amp; Crowd Flow Management. Know what's busy, what's blocked and the quickest way across campus, in real time.</p>
+    <ul>
+        <li>📍 Live crowd status for campus locations</li>
+        <li>🚧 Report and track blocked paths</li>
+        <li>📊 Admin insights for campus operations</li>
+    </ul>
+</div>
+<div class="panel">
+    <div class="box">
+        <h2>Welcome back</h2>
+        <p class="sub">Sign in to continue to your portal</p>
+
+        <div class="toggle">
+            <button type="button" id="tStudent" class="active" onclick="setRole('student')">🎓 Student</button>
+            <button type="button" id="tAdmin" onclick="setRole('admin')">🛡️ Admin</button>
+        </div>
+
+        <div class="alert err" th:if="${param.error}">Invalid email or password. New student? Create an account first.</div>
+        <div class="alert ok" th:if="${param.registered}">Account created! Please sign in.</div>
+        <div class="alert ok" th:if="${param.logout}">You have been signed out.</div>
+
+        <form th:action="@{/login}" method="post">
+            <label>Email</label>
+            <input type="text" name="username" id="email" placeholder="yourname@campus.com" required autofocus>
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+            <button class="btn" type="submit">Sign in</button>
+        </form>
+
+        <div class="switch" id="regLink">New student? <a th:href="@{/register}">Create an account</a></div>
+    </div>
+</div>
+<script>
+function setRole(r){
+  document.getElementById('tStudent').classList.toggle('active', r==='student');
+  document.getElementById('tAdmin').classList.toggle('active', r==='admin');
+  document.getElementById('email').placeholder = r==='admin' ? 'admin@campus.com' : 'yourname@campus.com';
+  document.getElementById('regLink').style.display = r==='admin' ? 'none' : 'block';
+}
+</script>
+</body>
+</html>

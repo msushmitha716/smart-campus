@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus - Manage Locations</title>
+<style th:replace="~{fragments :: styles}"></style>
+</head>
+<body>
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('locations')}"></aside>
+
+    <main class="main">
+        <h1>📍 Manage Locations</h1>
+        <p class="sub">Add new campus locations or remove ones that no longer exist.</p>
+
+        <div class="alert ok" th:if="${success}" th:text="${success}"></div>
+        <div class="alert err" th:if="${error}" th:text="${error}"></div>
+
+        <div class="panel">
+            <h2>Add a location</h2>
+            <form class="add-form" th:action="@{/admin/manage/locations/add}" method="post">
+                <input type="text" name="name" placeholder="e.g. Central Library" required>
+                <button class="btn" type="submit">+ Add location</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>All locations (<span th:text="${#lists.size(locations)}">0</span>)</h2>
+            <table>
+                <thead>
+                    <tr><th>Name</th><th>Crowd status</th><th>Path</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="loc : ${locations}">
+                        <td th:text="${loc['name']}">Name</td>
+                        <td><span class="badge" th:text="${loc['crowd_status'] != null} ? ${loc['crowd_status']} : '—'">Normal</span></td>
+                        <td>
+                            <span th:if="${loc['blocked'] == true}" class="badge red">Blocked</span>
+                            <span th:unless="${loc['blocked'] == true}" class="badge green">Open</span>
+                        </td>
+                        <td style="text-align:right">
+                            <form th:action="@{/admin/manage/locations/delete}" method="post"
+                                  onsubmit="return confirm('Delete this location?');" style="display:inline">
+                                <input type="hidden" name="id" th:value="${loc['id']}">
+                                <button class="btn-del" type="submit">🗑 Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="empty" th:if="${#lists.isEmpty(locations)}">No locations yet. Add one above.</div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

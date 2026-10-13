@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus - Dashboard</title>
+<style>
+:root{--primary:#4f46e5;--primary-dark:#4338ca;--bg:#f1f5f9;--text:#0f172a;--muted:#64748b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;color:var(--text);background:var(--bg)}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:#0f172a;color:#cbd5e1;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{padding:24px;font-size:20px;font-weight:700;color:#fff;border-bottom:1px solid #1e293b}
+.brand span{color:#818cf8}
+.nav{padding:14px 12px;flex:1}
+.nav a{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:#cbd5e1;text-decoration:none;margin-bottom:4px;font-size:15px;transition:.2s}
+.nav a:hover{background:#1e293b;color:#fff}
+.nav a.active{background:var(--primary);color:#fff}
+.nav .label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#64748b;padding:14px 14px 6px}
+.side-foot{padding:16px;border-top:1px solid #1e293b}
+.logout{width:100%;padding:11px;border:1px solid #334155;background:transparent;color:#f1f5f9;border-radius:10px;cursor:pointer;font-size:14px;transition:.2s}
+.logout:hover{background:#dc2626;border-color:#dc2626}
+.main{flex:1;padding:28px 36px;min-width:0}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}
+.topbar h1{font-size:26px}
+.topbar p{margin-top:4px;color:var(--muted)}
+.user-chip{display:flex;align-items:center;gap:10px;background:#fff;padding:8px 18px 8px 8px;border-radius:40px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+.user-chip small{display:block;color:var(--muted);font-size:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:24px}
+.stat{background:#fff;border-radius:16px;padding:22px;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:.2s}
+.stat:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.stat .icon{font-size:28px}
+.stat h3{margin:10px 0 2px;font-size:26px}
+.stat span{color:var(--muted);font-size:14px}
+.panel{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:24px}
+.panel h2{margin-bottom:14px;font-size:18px}
+.panel p{color:var(--muted);margin-bottom:16px}
+.panel ul{padding-left:18px;line-height:1.9;color:#334155}
+.btn-link{display:inline-block;padding:12px 22px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border-radius:10px;text-decoration:none;font-weight:600;transition:.2s}
+.btn-link:hover{box-shadow:0 8px 20px rgba(79,70,229,.35);transform:translateY(-1px)}
+@media(max-width:800px){.sidebar{display:none}.main{padding:20px}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">🎓 Smart <span>Campus</span></div>
+        <nav class="nav">
+            <div class="label">Menu</div>
+            <a href="#overview" class="active">🏠 Dashboard</a>
+            <a th:href="@{/}">🚦 Crowd Flow &amp; Mobility</a>
+            <a href="#announcements">📢 Announcements</a>
+            <a href="#profile">👤 My Profile</a>
+            
+            <!-- Admin Links -->
+            <div class="label" th:if="${role == 'ADMIN'}">Administration</div>
+            <a th:if="${role == 'ADMIN'}" th:href="@{/admin/manage/locations}">📍 Manage Locations</a>
+            <a th:if="${role == 'ADMIN'}" th:href="@{/admin/manage/students}">👥 Registered Students</a>
+        </nav>
+        <div class="side-foot">
+            <form th:action="@{/logout}" method="post">
+                <button class="logout" type="submit">⎋ Sign out</button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="main">
+        <div class="topbar" id="overview">
+            <div>
+                <h1>Hello, <span th:text="${name}">User</span> 👋</h1>
+                <p th:text="${role == 'ADMIN'} ? 'Administrator control panel' : 'Here is what is happening on campus today'"></p>
+            </div>
+            <div class="user-chip">
+                <div class="avatar" th:text="${#strings.substring(name,0,1)}">U</div>
+                <div><span th:text="${name}">User</span><small th:text="${role}">ROLE</small></div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="stat"><div class="icon">🚦</div><h3>Live</h3><span>Crowd monitoring active</span></div>
+            <div class="stat"><div class="icon">📍</div><h3>Campus</h3><span>Locations tracked</span></div>
+            <div class="stat"><div class="icon">🚧</div><h3>Reports</h3><span>Issues reported by students</span></div>
+            <div class="stat" th:if="${role == 'ADMIN'}"><div class="icon">👥</div><h3 th:text="${userCount}">0</h3><span>Registered students</span></div>
+        </div>
+
+        <div class="panel">
+            <h2>Quick access</h2>
+            <p>View live crowd status, vote on how busy a place is, and report blocked paths.</p>
+            <a class="btn-link" th:href="@{/}">Open Crowd Flow &amp; Mobility →</a>
+        </div>
+
+        <div class="panel" id="announcements">
+            <h2>📢 Announcements</h2>
+            <ul>
+                <li>Library and cafeteria are busiest between 12:30 PM and 2:00 PM.</li>
+                <li>Use alternate routes when a path is reported as blocked.</li>
+                <li>Report any crowding or blocked paths so others can plan ahead.</li>
+            </ul>
+        </div>
+
+        <div class="panel" id="profile">
+            <h2>👤 My profile</h2>
+            <ul>
+                <li><b>Email:</b> <span th:text="${email}"></span></li>
+                <li><b>Role:</b> <span th:text="${role}"></span></li>
+            </ul>
+        </div>
+    </main>
+</div>
+</body>
+</html>

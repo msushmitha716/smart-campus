@@ -1,0 +1,21 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smart-campus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smart-campus
+  template:
+    metadata:
+      labels:
+        app: smart-campus
+    spec:
+      containers:
+        - name: smart-campus
+          image: smart-campus:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8090

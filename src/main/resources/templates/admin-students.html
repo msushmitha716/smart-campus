@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Campus - Registered Students</title>
+<style th:replace="~{fragments :: styles}"></style>
+</head>
+<body>
+<div class="layout">
+    <aside th:replace="~{fragments :: sidebar('students')}"></aside>
+
+    <main class="main">
+        <h1>👥 Registered Students</h1>
+        <p class="sub">Students who have created an account on Smart Campus.</p>
+
+        <div class="panel">
+            <h2>Total: <span th:text="${#lists.size(students)}">0</span></h2>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Email</th><th>Role</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s, i : ${students}">
+                        <td th:text="${i.count}">1</td>
+                        <td th:text="${s.email}">student@campus.com</td>
+                        <td><span class="badge" th:text="${s.role}">STUDENT</span></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="empty" th:if="${#lists.isEmpty(students)}">No students have registered yet.</div>
+        </div>
+    </main>
+</div>
+</body>
+</html>
